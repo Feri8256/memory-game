@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Brush Script MT', cursive;
+}
+
+body {
+    background-color: black;
+}
+
+canvas {
+    position: absolute;
+    height: 100%;
+    translate: -50%;
+    left: 50%;
+}
