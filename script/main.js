@@ -28,11 +28,12 @@ class Game {
             symbols: [
                 new SpriteImage("img/s0.png"),
                 new SpriteImage("img/s1.png"),
-                new SpriteImage("img/s2.png")
+                new SpriteImage("img/s2.png"),
+                new SpriteImage("img/s3.png")
             ]
         };
 
-        this.inputHandler = new InputHandler(true);
+        this.inputHandler = new InputHandler();
 
         this.EASINGS = EASING;
         this.ANIMATION = Animation;

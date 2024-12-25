@@ -1,8 +1,8 @@
 export class Board {
     /**
      * Manages the game's main logic
-     * @param {*} game 
-     * @param {*} size 
+     * @param {*} game that
+     * @param {*} size Width and height of the board
      */
     constructor(game, size) {
         this.game = game;
@@ -10,10 +10,11 @@ export class Board {
         this.size = size ?? 2;
         this.gridSizePx = this.game.canvas.width / this.size;
 
-        this.cards = [];
-
         this.selections = [];
 
+        this.cards = [];
+
+        let symbol = 0;
         for (let rowIndex = 0; rowIndex < this.size; rowIndex++) {
 
             let r = [];
@@ -21,18 +22,22 @@ export class Board {
                 r.push(
                     new this.game.CARD(
                         this.game,
-                        0,
+                        symbol,
                         this.gridSizePx * columnIndex,
                         this.gridSizePx * rowIndex,
                         this.gridSizePx
                     )
                 );
+
+                if (columnIndex === size - 1) symbol++; // Fill a row with just one symbol then change it
+                if (symbol > this.game.sprites.symbols.length - 1) symbol = 0;
             }
 
             this.cards.push(r);
         }
 
-        console.log(this.cards, this.gridSizePx);
+        // TODO: Shuffle!!!
+
     }
 
     update() {
@@ -53,8 +58,8 @@ export class Board {
 
     click() {
         // Converting cursor coordinates to corresponding indexes in the cards array
-        let xIndex = Math.trunc(this.minmax(this.game.pointer.x, 0, this.game.canvas.width - 1) / this.gridSizePx);
-        let yIndex = Math.trunc(this.minmax(this.game.pointer.y, 0, this.game.canvas.height - 1) / this.gridSizePx);
+        let xIndex = this.minmax(Math.trunc(this.game.pointer.x / this.gridSizePx), 0, this.size - 1);
+        let yIndex = this.minmax(Math.trunc(this.game.pointer.y / this.gridSizePx), 0, this.size - 1);
 
         // You can't select a card that is already despawned
         if (this.cards[yIndex][xIndex].despawned) return;
@@ -80,14 +85,12 @@ export class Board {
 
             // Check for symbol match, and despawn
             if (aCard.symbolId === bCard.symbolId) {
-                console.log("match!");
                 this.cards[aSelect.yi][aSelect.xi].despawn();
                 this.cards[bSelect.yi][bSelect.xi].despawn();
             } else {
                 // No match, unselect
-                this.cards[aSelect.yi][aSelect.xi].unselect();
-                this.cards[bSelect.yi][bSelect.xi].unselect();
-                console.log("no match");
+                this.cards[aSelect.yi][aSelect.xi].unselect(true);
+                this.cards[bSelect.yi][bSelect.xi].unselect(true);
             }
 
             // Clear the selection accumulator

@@ -1,6 +1,6 @@
 export class Card {
     constructor(game, symbolId, x, y, gridSizePx) {
-        this.effectDurationMs = 300;
+        this.effectDurationMs = 250;
 
         this.game = game;
         this.symbolId = symbolId ?? 0;
@@ -58,21 +58,70 @@ export class Card {
         this.selectAnimation.appendAnimation(
             new this.game.ANIMATION(
                 0,
-                this.effectDurationMs* 0.5,
+                this.effectDurationMs * 0.5,
                 0,
                 0,
-                this.game.EASINGS.SineIn,
+                this.game.EASINGS.Linear,
                 false,
                 "svx"
             )
         );
         this.selectAnimation.appendAnimation(
             new this.game.ANIMATION(
-                this.effectDurationMs* 0.5,
+                this.effectDurationMs * 0.5,
                 this.effectDurationMs,
                 0,
                 1,
+                this.game.EASINGS.SineOut,
+                false,
+                "svx"
+            )
+        );
+
+        this.unselectAnimation = new this.game.TL();
+        this.unselectAnimation.appendAnimation(
+            new this.game.ANIMATION(
+                0,
+                this.effectDurationMs * 0.5,
+                1,
+                0,
                 this.game.EASINGS.SineIn,
+                false,
+                "svx"
+            )
+        );
+
+
+        this.unselectNoMatchAnimation = new this.game.TL();
+        this.unselectNoMatchAnimation.appendAnimation(
+            new this.game.ANIMATION(
+                this.effectDurationMs,
+                this.effectDurationMs * 2,
+                1,
+                -1,
+                this.game.EASINGS.SineInOut,
+                false,
+                "cvx"
+            )
+        );
+        this.unselectNoMatchAnimation.appendAnimation(
+            new this.game.ANIMATION(
+                0,
+                this.effectDurationMs,
+                1,
+                1,
+                this.game.EASINGS.SineOut,
+                false,
+                "svx"
+            )
+        );
+        this.unselectNoMatchAnimation.appendAnimation(
+            new this.game.ANIMATION(
+                this.effectDurationMs,
+                this.effectDurationMs + this.effectDurationMs * 0.5,
+                1,
+                0,
+                this.game.EASINGS.SineOut,
                 false,
                 "svx"
             )
@@ -80,22 +129,33 @@ export class Card {
     }
 
     update() {
+        // No need to perform all the things below when the card is not visible anymore
+        if (this.despawned && this.despawnAnimation.amount === 1) return;
+
         this.selectAnimation.update(this.game.clock);
+        this.unselectAnimation.update(this.game.clock);
+        this.unselectNoMatchAnimation.update(this.game.clock);
         this.despawnAnimation.update(this.game.clock);
         this.currentScale = this.despawnAnimation.currentValue;
 
         this.backSide.scale = this.currentScale;
-        this.backSide.scale_x = this.selectAnimation.getValueOf("cvx") ?? 1;
+        this.backSide.scale_x = this.selectAnimation.getValueOf("cvx") ?? this.unselectNoMatchAnimation.getValueOf("cvx") ?? 1;
 
         this.symbol.scale = this.currentScale;
-        this.symbol.scale_x = this.selectAnimation.getValueOf("svx") ?? 1;
+        this.symbol.scale_y = 1;
+        if (this.selected) {
+            this.symbol.scale_x = this.selectAnimation.getValueOf("svx") ?? 1;
+        } else {
+            this.symbol.scale_x = this.unselectAnimation.getValueOf("svx") ?? this.unselectNoMatchAnimation.getValueOf("svx") ?? 0;
+        }
 
     }
 
     render() {
-        this.backSide.render(this.game.ctx);
+        if (this.despawned && this.despawnAnimation.amount === 1) return;
 
-        if (this.selected) this.symbol.render(this.game.ctx);
+        this.backSide.render(this.game.ctx);
+        this.symbol.render(this.game.ctx);
 
     }
 
@@ -103,7 +163,7 @@ export class Card {
         this.despawned = true;
         this.despawnAnimation = new this.game.ANIMATION(
             this.game.clock + this.effectDurationMs,
-            this.game.clock + this.effectDurationMs*2,
+            this.game.clock + this.effectDurationMs * 2,
             this.cardScale,
             0,
             this.game.EASINGS.BackIn
@@ -115,9 +175,12 @@ export class Card {
         this.selectAnimation.play();
     }
 
-    unselect() {
+    /**
+     * 
+     * @param {Boolean} noMatch 
+     */
+    unselect(noMatch = false) {
         this.selected = false;
-        this.selectAnimation.play();
-        console.log("unselected");
+        noMatch ? this.unselectNoMatchAnimation.play() : this.unselectAnimation.play();
     }
 }
