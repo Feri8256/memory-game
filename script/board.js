@@ -13,8 +13,25 @@ export class Board {
         this.selections = [];
 
         this.cards = [];
-
+        this.symbols = [];
         let symbol = 0;
+        //Creating an array of symbols an shuffle them
+        for (let rowIndex = 0; rowIndex < this.size; rowIndex++) {
+            let r = [];
+            for (let columnIndex = 0; columnIndex < this.size; columnIndex++) {
+                r.push(symbol);
+
+                if (columnIndex === size - 1) symbol++; // Fill a row with just one symbol then change it
+                if (symbol > this.game.sprites.symbols.length - 1) symbol = 0;
+            }
+
+            this.symbols.push(r);
+        }
+
+        this.symbols = this.shuffle(this.symbols);
+        console.log(this.symbols)
+
+        // Creating the cards with the randomized symbols
         for (let rowIndex = 0; rowIndex < this.size; rowIndex++) {
 
             let r = [];
@@ -22,22 +39,16 @@ export class Board {
                 r.push(
                     new this.game.CARD(
                         this.game,
-                        symbol,
+                        this.symbols[columnIndex][rowIndex],
                         this.gridSizePx * columnIndex,
                         this.gridSizePx * rowIndex,
                         this.gridSizePx
                     )
                 );
-
-                if (columnIndex === size - 1) symbol++; // Fill a row with just one symbol then change it
-                if (symbol > this.game.sprites.symbols.length - 1) symbol = 0;
             }
 
             this.cards.push(r);
         }
-
-        // TODO: Shuffle!!!
-
     }
 
     update() {
@@ -100,5 +111,24 @@ export class Board {
 
     minmax(x, min, max) {
         return Math.max(min, Math.min(x, max));
+    }
+
+    /**
+     * Array shuffle algorithm based on: https://stackoverflow.com/questions/52241641/shuffling-multidimensional-array-in-js and https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+     * @param {Array[]} arr array to be shuffled
+     * @returns {Array[]} shuffled array
+     */
+    shuffle(arr) {
+        for (let k = 0; k < arr.length; k++) {
+            let i = arr[k].length;
+            while (i--) {
+                let j = Math.floor(Math.random() * arr.length);
+                let tempi = arr[i][k];
+                let tempj = arr[j][k];
+                arr[i][k] = tempj;
+                arr[j][k] = tempi;
+            }
+        }
+        return arr;
     }
 }
