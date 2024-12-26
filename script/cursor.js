@@ -20,8 +20,8 @@ export class CursorPointer {
         this.x = m.x;
         this.y = m.y;
 
-        this.sprite.x = m.x;
-        this.sprite.y = m.y;
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
 
         if (m.down) {
             this.down = true;

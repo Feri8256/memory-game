@@ -5,7 +5,7 @@ import { InputHandler } from "./InputHandler.js";
 import { Card } from "./card.js";
 import { Board } from "./board.js";
 import { CursorPointer } from "./cursor.js";
-
+import { LevelManager } from "./levelManager.js";
 
 
 var game = null;
@@ -13,8 +13,8 @@ var game = null;
 class Game {
     constructor() {
         this.canvas = document.querySelector("canvas");
-        this.canvas.width = 512;
-        this.canvas.height = 512;
+        this.canvas.width = 640;
+        this.canvas.height = 640;
         this.ctx = this.canvas.getContext("2d");
         this.ctx.imageSmoothingEnabled = true;
         this.ctx.imageSmoothingQuality = "high";
@@ -42,8 +42,11 @@ class Game {
         this.SPRITE = Sprite;
 
         this.CARD = Card;
+        this.BOARD = Board;
         this.pointer = new CursorPointer(this);
-        this.board = new Board(this, 4);
+
+        this.levelManager = new LevelManager(this);
+        //this.board = new Board(this, 4);
 
 
         this.inputHandler.onMousedown = () => {

@@ -8,7 +8,8 @@ export class Board {
         this.game = game;
 
         this.size = size ?? 2;
-        this.gridSizePx = this.game.canvas.width / this.size;
+        this.renderWidth = this.game.canvas.width;
+        this.gridSizePx = this.renderWidth / this.size;
 
         this.selections = [];
 
@@ -29,7 +30,6 @@ export class Board {
         }
 
         this.symbols = this.shuffle(this.symbols);
-        console.log(this.symbols)
 
         // Creating the cards with the randomized symbols
         for (let rowIndex = 0; rowIndex < this.size; rowIndex++) {
@@ -39,7 +39,7 @@ export class Board {
                 r.push(
                     new this.game.CARD(
                         this.game,
-                        this.symbols[columnIndex][rowIndex],
+                        this.symbols[rowIndex][columnIndex],
                         this.gridSizePx * columnIndex,
                         this.gridSizePx * rowIndex,
                         this.gridSizePx
@@ -106,6 +106,10 @@ export class Board {
 
             // Clear the selection accumulator
             this.selections.length = 0;
+
+            // When all cards despawned, the game is finished
+            let b = [].concat(...this.cards).findIndex((c) => { return !c.despawned }) === -1;
+            if (b) this.game.levelManager.createNextLevel();
         }
     }
 
