@@ -6,6 +6,7 @@ import { Card } from "./card.js";
 import { Board } from "./board.js";
 import { CursorPointer } from "./cursor.js";
 import { LevelManager } from "./levelManager.js";
+import { Celebration } from "./confetti.js";
 
 
 var game = null;
@@ -29,7 +30,15 @@ class Game {
                 new SpriteImage("img/s0.png"),
                 new SpriteImage("img/s1.png"),
                 new SpriteImage("img/s2.png"),
-                new SpriteImage("img/s3.png")
+                new SpriteImage("img/s3.png"),
+                new SpriteImage("img/s4.png"),
+                new SpriteImage("img/s5.png")
+            ],
+            particles: [
+                new SpriteImage("img/p0.png"),
+                new SpriteImage("img/p1.png"),
+                new SpriteImage("img/p2.png"),
+                new SpriteImage("img/p3.png"),
             ]
         };
 
@@ -44,6 +53,8 @@ class Game {
         this.CARD = Card;
         this.BOARD = Board;
         this.pointer = new CursorPointer(this);
+
+        this.celebration = new Celebration(this);
 
         this.levelManager = new LevelManager(this);
         //this.board = new Board(this, 4);
@@ -60,6 +71,8 @@ class Game {
         this.board.update();
 
         this.pointer.update();
+
+        this.celebration.update();
     }
 
     render() {
@@ -68,6 +81,8 @@ class Game {
         this.board.render();
 
         this.pointer.render();
+
+        this.celebration.render();
     }
     
 }

@@ -8,6 +8,7 @@ export class LevelManager {
     }
 
     createNextLevel() {
+        this.game.celebration.start();
         this.currentBoardSize += 2;
         this.game.board = new this.game.BOARD(this.game, this.currentBoardSize);
     }
