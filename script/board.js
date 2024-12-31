@@ -7,6 +7,9 @@ export class Board {
     constructor(game, size) {
         this.game = game;
 
+        this.firstClick = true;
+        this.firstClickAtMs = 0;
+
         this.size = size ?? 2;
         this.renderWidth = this.game.canvas.width;
         this.gridSizePx = this.renderWidth / this.size;
@@ -68,6 +71,11 @@ export class Board {
     }
 
     click() {
+        if (this.firstClick) {
+            this.firstClickAtMs = this.game.clock;
+            this.firstClick = false;
+        }
+
         // Converting cursor coordinates to corresponding indexes in the cards array
         let xIndex = this.minmax(Math.trunc(this.game.pointer.x / this.gridSizePx), 0, this.size - 1);
         let yIndex = this.minmax(Math.trunc(this.game.pointer.y / this.gridSizePx), 0, this.size - 1);
@@ -109,7 +117,11 @@ export class Board {
 
             // When all cards despawned, the game is finished
             let b = [].concat(...this.cards).findIndex((c) => { return !c.despawned }) === -1;
-            if (b) this.game.levelManager.createNextLevel();
+            if (b) {
+                //this.game.levelManager.createNextLevel();
+                this.game.gameEnd.start(this.game.clock - this.firstClickAtMs);
+                console.log(this.game.clock - this.firstClickAtMs);
+            } 
         }
     }
 

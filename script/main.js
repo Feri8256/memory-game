@@ -7,12 +7,16 @@ import { Board } from "./board.js";
 import { CursorPointer } from "./cursor.js";
 import { LevelManager } from "./levelManager.js";
 import { Celebration } from "./confetti.js";
-
+import { GameEndView } from "./gameEnd.js";
+import { strings } from "./locales.js";
 
 var game = null;
 
 class Game {
-    constructor() {
+    constructor(lang) {
+        let testLang = strings[lang];
+        this.STRINGS = testLang == undefined ? strings["en"] : testLang;
+
         this.canvas = document.querySelector("canvas");
         this.canvas.width = 640;
         this.canvas.height = 640;
@@ -26,6 +30,7 @@ class Game {
             card_back: new SpriteImage("img/cardback.png"),
             card_face: new SpriteImage("img/card.png"),
             cursor: new SpriteImage("img/cursor.png"),
+            light: new SpriteImage("img/light.png"),
             symbols: [
                 new SpriteImage("img/s0.png"),
                 new SpriteImage("img/s1.png"),
@@ -59,30 +64,36 @@ class Game {
         this.levelManager = new LevelManager(this);
         //this.board = new Board(this, 4);
 
+        this.gameEnd = new GameEndView(this);
 
         this.inputHandler.onMousedown = () => {
-            this.board.click();
+            this.levelManager.board.click();
+            this.gameEnd.click();
         }
     }
 
     update(timestamp) {
         this.clock = timestamp;
 
-        this.board.update();
+        this.levelManager.board.update();
 
         this.pointer.update();
 
         this.celebration.update();
+
+        this.gameEnd.update();
     }
 
     render() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.board.render();
-
-        this.pointer.render();
+        this.levelManager.board.render();
 
         this.celebration.render();
+
+        this.gameEnd.render();
+
+        this.pointer.render();
     }
     
 }
@@ -97,6 +108,6 @@ function mainLoop(timestamp) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-    game = new Game();
+    game = new Game(navigator.language);
     requestAnimationFrame(mainLoop);
 });
